@@ -657,7 +657,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 scientific: 'به صورت علمی و تخصصی ترجمه کن',
                 professional: 'به صورت حرفه‌ای و تجاری ترجمه کن',
                 childish: 'به زبان ساده و قابل فهم برای کودکان ترجمه کن',
-                serious: 'به صورت جدی و رسمی ترجمه کن'
+                serious: 'به صورت جدی و رسمی ترجمه کن',
+                meanings: 'انواع معانی مختلف این کلمه را نشان بده و در هر زمینه چه معنی می‌دهد'
             };
 
             const tonePrompt = tonePrompts[tone] || tonePrompts['normal'];
@@ -666,10 +667,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetLangName = targetLanguage.options[targetLanguage.selectedIndex].text;
             
             // ساخت پیام برای API
-            const userMessage = `${srcLang === 'auto' ? 'این متن را به ' + targetLangName + ' ' + tonePrompt : 
-                'این متن ' + sourceLangName + ' را به ' + targetLangName + ' ' + tonePrompt}:
-                
+            let userMessage;
+            
+            if (tone === 'meanings') {
+                userMessage = `این کلمه یا عبارت "${text}" را تحلیل کن و معانی مختلف آن را در زمینه‌های مختلف به ${targetLangName} نشان بده.
+لطفاً به صورت ساختارمند موارد زیر را نشان بده:
+1. معنی اصلی
+2. معانی مختلف در زمینه‌های متفاوت (مثل ادبی، تخصصی، عامیانه و غیره)
+3. مترادف‌ها و متضادها
+4. مثال‌هایی از کاربرد در جمله
+
+فقط معانی را نشان بده و توضیح اضافی ندهد.`;
+            } else {
+                userMessage = `${srcLang === 'auto' ? 'این متن را به ' + targetLangName + ' ' + tonePrompt : 
+                    'این متن ' + sourceLangName + ' را به ' + targetLangName + ' ' + tonePrompt}:
+                    
+فقط متن را ترجمه کن و هیچ توضیح، مقدمه یا پاورقی اضافه نکن. فقط و فقط ترجمه خالص متن زیر:
+
 ${text}`;
+            }
              
              const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                  method: 'POST',
@@ -677,7 +693,7 @@ ${text}`;
                      'Authorization': `Bearer ${apiKey}`,
                      'Content-Type': 'application/json',
                      'HTTP-Referer': window.location.href,
-                     'X-Title': 'مترجم هوشمند'
+                     'X-Title': 'Smart Translator'
                  },
                  body: JSON.stringify({
                      model: model,
