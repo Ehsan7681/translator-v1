@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مترجم هوشمند</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="theme-toggle">
+        <button id="theme-button" class="icon-button"><i class="fas fa-palette"></i></button>
+    </div>
+    
+    <div class="settings-toggle">
+        <button id="settings-button" class="icon-button"><i class="fas fa-cog"></i></button>
+    </div>
+    
+    <div class="theme-panel">
+        <div class="theme-panel-header">
+            <h3>انتخاب تم</h3>
+            <button class="close-panel icon-button"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="theme-options">
+            <div class="theme-option" data-theme="default">
+                <div class="theme-preview" style="background: linear-gradient(135deg, #f5f7fa, #c3cfe2);"></div>
+                <span>پیش‌فرض</span>
+            </div>
+            <div class="theme-option" data-theme="dark">
+                <div class="theme-preview" style="background: linear-gradient(135deg, #2d3436, #636e72);"></div>
+                <span>تیره</span>
+            </div>
+            <div class="theme-option" data-theme="sunset">
+                <div class="theme-preview" style="background: linear-gradient(135deg, #f9c5d1, #f2789f);"></div>
+                <span>غروب</span>
+            </div>
+            <div class="theme-option" data-theme="ocean">
+                <div class="theme-preview" style="background: linear-gradient(135deg, #b3e5fc, #4fc3f7);"></div>
+                <span>اقیانوس</span>
+            </div>
+            <div class="theme-option" data-theme="forest">
+                <div class="theme-preview" style="background: linear-gradient(135deg, #c8e6c9, #81c784);"></div>
+                <span>جنگل</span>
+            </div>
+            <div class="theme-option" data-theme="lavender">
+                <div class="theme-preview" style="background: linear-gradient(135deg, #e6e6fa, #b39ddb);"></div>
+                <span>اسطوخودوس</span>
+            </div>
+        </div>
+        <div class="opacity-control">
+            <label for="opacity-slider">میزان شفافیت پنل‌ها: <span id="opacity-value">50%</span></label>
+            <input type="range" id="opacity-slider" min="20" max="90" value="50" class="slider">
+        </div>
+    </div>
+    
+    <div class="settings-panel">
+        <div class="settings-panel-header">
+            <h3>تنظیمات</h3>
+            <button class="close-settings-panel icon-button"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="settings-panel-content">
+            <div class="api-key-container">
+                <label for="api-key">کلید API اوپن‌روتر:</label>
+                <div class="api-key-row">
+                    <input type="password" id="api-key" placeholder="کلید API خود را وارد کنید">
+                    <button id="show-hide-api" class="icon-button"><i class="fas fa-eye"></i></button>
+                </div>
+                <button id="save-api" class="glass-button"><i class="fas fa-save"></i> ذخیره</button>
+            </div>
+            
+            <div class="model-selection">
+                <label for="model-select">انتخاب مدل هوش مصنوعی:</label>
+                <select id="model-select" class="glass-select">
+                    <option value="">در حال بارگذاری مدل‌ها...</option>
+                </select>
+            </div>
+            
+            <div class="tone-selection">
+                <label for="tone-select">انتخاب لحن:</label>
+                <select id="tone-select" class="glass-select">
+                    <option value="normal">عادی</option>
+                    <option value="formal">رسمی</option>
+                    <option value="informal">غیررسمی</option>
+                    <option value="scientific">علمی</option>
+                    <option value="professional">حرفه‌ای</option>
+                    <option value="childish">کودکانه</option>
+                    <option value="serious">جدی</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="glass-panel">
+            <h1>مترجم هوشمند</h1>
+            
+            <div class="translation-container">
+                <div class="text-area-container">
+                    <div class="textarea-header">
+                        <label for="source-text">متن اصلی:</label>
+                        <button id="clear-source" class="icon-button" title="پاک کردن متن"><i class="fas fa-eraser"></i></button>
+                    </div>
+                    <textarea id="source-text" placeholder="متن خود را برای ترجمه وارد کنید..."></textarea>
+                    <div class="language-selection">
+                        <select id="source-language" class="glass-select">
+                            <option value="auto">تشخیص خودکار</option>
+                            <option value="fa">فارسی</option>
+                            <option value="en">انگلیسی</option>
+                            <option value="ar">عربی</option>
+                            <option value="fr">فرانسوی</option>
+                            <option value="de">آلمانی</option>
+                            <option value="es">اسپانیایی</option>
+                            <option value="ru">روسی</option>
+                            <option value="zh">چینی</option>
+                            <option value="ja">ژاپنی</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button id="translate-button" class="glass-button"><i class="fas fa-language"></i> ترجمه</button>
+                
+                <div class="text-area-container">
+                    <div class="textarea-header">
+                        <label for="translated-text">متن ترجمه شده:</label>
+                        <div class="textarea-actions">
+                            <button id="clear-translation" class="icon-button" title="پاک کردن متن"><i class="fas fa-eraser"></i></button>
+                            <button id="copy-translation" class="icon-button" title="کپی متن"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+                    <textarea id="translated-text" placeholder="ترجمه اینجا نمایش داده می‌شود..." readonly></textarea>
+                    <div class="language-selection">
+                        <select id="target-language" class="glass-select">
+                            <option value="fa">فارسی</option>
+                            <option value="en">انگلیسی</option>
+                            <option value="ar">عربی</option>
+                            <option value="fr">فرانسوی</option>
+                            <option value="de">آلمانی</option>
+                            <option value="es">اسپانیایی</option>
+                            <option value="ru">روسی</option>
+                            <option value="zh">چینی</option>
+                            <option value="ja">ژاپنی</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- بخش تاریخچه ترجمه‌ها -->
+            <div class="history-section">
+                <div class="history-header">
+                    <h2><i class="fas fa-chevron-down history-toggle-icon"></i> تاریخچه ترجمه‌ها</h2>
+                    <button id="clear-history" class="glass-button small"><i class="fas fa-trash"></i> پاک کردن همه</button>
+                </div>
+                <div class="history-content">
+                    <div id="translation-history" class="history-container">
+                        <p class="no-history">تاریخچه‌ای وجود ندارد</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="loading-indicator" id="loading">
+                <div class="spinner"></div>
+                <p>در حال ترجمه...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- مدال تایید حذف آیتم -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>تأیید حذف</h3>
+            <p>آیا از حذف این مورد از تاریخچه اطمینان دارید؟</p>
+            <div class="modal-buttons">
+                <button id="confirm-delete" class="glass-button danger">بله، حذف شود</button>
+                <button id="cancel-delete" class="glass-button">انصراف</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- مدال تایید حذف همه -->
+    <div id="delete-all-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>تأیید حذف همه</h3>
+            <p>آیا از حذف تمام موارد تاریخچه اطمینان دارید؟</p>
+            <p>این عمل قابل بازگشت نیست.</p>
+            <div class="modal-buttons">
+                <button id="confirm-delete-all" class="glass-button danger">بله، همه حذف شوند</button>
+                <button id="cancel-delete-all" class="glass-button">انصراف</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- اعلان کپی موفق -->
+    <div id="copy-toast" class="toast">
+        <i class="fas fa-check-circle"></i> متن با موفقیت کپی شد!
+    </div>
+    
+    <footer class="glass-footer">
+        <p>مترجم هوشمند با استفاده از API اوپن‌روتر</p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html> 
