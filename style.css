@@ -19,6 +19,7 @@
     --history-title-color: #333;
     --background-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     --panel-opacity: 0.5;
+    --accent-color-rgb: 108, 99, 255; /* #6c63ff */
 }
 
 /* تم تیره */
@@ -38,6 +39,7 @@
     --history-text-color: #ffffff;
     --history-title-color: #f5f5f5;
     --background-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
+    --accent-color-rgb: 187, 134, 252; /* #bb86fc */
 }
 
 /* تم غروب */
@@ -57,6 +59,7 @@
     --history-text-color: #5a4646;
     --history-title-color: #4a3636;
     --background-gradient: linear-gradient(135deg, #f9c5d1, #f2789f);
+    --accent-color-rgb: 242, 120, 159; /* #f2789f */
 }
 
 /* تم اقیانوس */
@@ -76,6 +79,7 @@
     --history-text-color: #0277bd;
     --history-title-color: #01579b;
     --background-gradient: linear-gradient(135deg, #b3e5fc, #4fc3f7);
+    --accent-color-rgb: 2, 136, 209; /* #0288d1 */
 }
 
 /* تم جنگل */
@@ -95,6 +99,7 @@
     --history-text-color: #2e7d32;
     --history-title-color: #1b5e20;
     --background-gradient: linear-gradient(135deg, #c8e6c9, #81c784);
+    --accent-color-rgb: 76, 175, 80; /* #4caf50 */
 }
 
 /* تم اسطوخودوس */
@@ -114,6 +119,7 @@
     --history-text-color: #5e35b1;
     --history-title-color: #4527a0;
     --background-gradient: linear-gradient(135deg, #e6e6fa, #b39ddb);
+    --accent-color-rgb: 126, 87, 194; /* #7e57c2 */
 }
 
 * {
@@ -880,20 +886,50 @@ label {
         right: 10px;
         top: 60px;
     }
+    
+    /* بهبود تجربه کاربری در تبلت‌ها */
+    .icon-button {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .glass-button {
+        padding: 12px 18px;
+    }
+    
+    .glass-button.small {
+        padding: 8px 12px;
+    }
 }
 
 @media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        margin: 1rem auto;
+    }
+    
     .glass-panel {
         padding: 1rem;
+        border-radius: 12px;
     }
     
     h1 {
         font-size: 1.5rem;
+        margin-bottom: 1.5rem;
     }
     
     textarea {
         height: 100px;
         font-size: 14px;
+        padding: 12px;
+    }
+    
+    .glass-footer {
+        font-size: 0.85rem;
+        padding: 0.8rem 0;
     }
     
     #translate-button {
@@ -905,6 +941,8 @@ label {
         width: calc(100% - 20px);
         right: 10px;
         padding: 1rem;
+        max-height: 85vh;
+        overflow-y: auto;
     }
     
     .theme-preview {
@@ -917,5 +955,422 @@ label {
     
     .settings-toggle {
         right: 60px;
+    }
+    
+    /* بهبود تجربه لمسی در موبایل */
+    .icon-button {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+    
+    .glass-button {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+    
+    .glass-button.small {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .select-option {
+        padding: 12px 15px;
+    }
+    
+    .textarea-header {
+        margin-bottom: 0.5rem;
+    }
+    
+    .language-selection select {
+        height: 44px;
+        padding: 0 15px;
+    }
+    
+    /* بهینه‌سازی پنل تاریخچه برای موبایل */
+    .history-item {
+        padding: 0.8rem;
+    }
+    
+    .history-text-content {
+        max-height: 80px;
+        font-size: 0.85rem;
+    }
+    
+    .history-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .history-actions {
+        align-self: flex-end;
+    }
+    
+    .history-actions button {
+        font-size: 1.2rem;
+        padding: 5px;
+    }
+}
+
+/* پشتیبانی از دستگاه‌های خیلی کوچک */
+@media (max-width: 360px) {
+    .glass-panel {
+        padding: 0.8rem;
+    }
+    
+    h1 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+    
+    textarea {
+        height: 90px;
+        font-size: 13px;
+        padding: 10px;
+    }
+    
+    .icon-button {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .settings-toggle {
+        right: 55px;
+    }
+    
+    /* تک ستونی کردن دکمه‌های تاریخچه */
+    .history-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    /* کوچک‌تر کردن نمایش تم‌ها */
+    .theme-preview {
+        height: 36px;
+    }
+    
+    .theme-option span {
+        font-size: 0.75rem;
+    }
+}
+
+/* اضافه کردن حالت landscape برای موبایل */
+@media (max-height: 480px) and (orientation: landscape) {
+    body {
+        padding: 5px 10px;
+    }
+    
+    .container {
+        margin: 1rem auto 4rem;
+    }
+    
+    h1 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+    
+    textarea {
+        height: 80px;
+    }
+    
+    .glass-panel {
+        padding: 1rem;
+    }
+    
+    .translation-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 1rem;
+    }
+    
+    #translate-button {
+        grid-column: 1 / 3;
+        grid-row: 1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .text-area-container:first-of-type {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    
+    .text-area-container:last-of-type {
+        grid-column: 2;
+        grid-row: 2;
+    }
+    
+    .theme-panel, .settings-panel {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+}
+
+/* فیکس موقعیت دکمه‌های شناور در هنگام استفاده از صفحه کلید در موبایل */
+@media (max-height: 600px) {
+    .theme-toggle, .settings-toggle {
+        position: absolute;
+    }
+    
+    .glass-footer {
+        position: relative;
+    }
+}
+
+/* کامپوننت سلکت قابل جستجو */
+.searchable-select {
+    position: relative;
+    width: 100%;
+}
+
+.select-input {
+    position: relative;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.select-input:hover {
+    border-color: var(--accent-color);
+}
+
+.select-input.active {
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+.select-input input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 0;
+    color: var(--input-text-color);
+    font-size: 1rem;
+    outline: none;
+}
+
+.select-input input::placeholder {
+    color: rgba(50, 50, 50, 0.6);
+    opacity: 1;
+}
+
+[data-theme="dark"] .select-input input::placeholder {
+    color: rgba(200, 200, 200, 0.7);
+    opacity: 1;
+}
+
+.select-input .selected-value {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--input-text-color);
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 40px);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.select-input.has-value input {
+    opacity: 0;
+}
+
+.select-input.has-value .selected-value {
+    opacity: 1;
+}
+
+.select-input i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s;
+    color: var(--text-color);
+}
+
+.select-input.active i {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.select-options {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    background: var(--glass-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    display: none;
+    direction: rtl;
+}
+
+.select-options.show {
+    display: block;
+}
+
+.select-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+    color: var(--text-color);
+}
+
+.select-option:hover, .select-option.highlighted {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .select-option:hover, 
+[data-theme="dark"] .select-option.highlighted {
+    background: rgba(80, 80, 100, 0.5);
+}
+
+.select-option.selected {
+    background: rgba(var(--accent-color-rgb), 0.2);
+    font-weight: 500;
+}
+
+.search-no-result {
+    padding: 15px;
+    text-align: center;
+    color: var(--text-color);
+    font-style: italic;
+}
+
+[data-theme="dark"] .select-input {
+    background: rgba(20, 20, 30, 0.5);
+}
+
+/* تبدیل مقدار hex به rgb برای استفاده در rgba */
+[data-theme="sunset"] {
+    --accent-color-rgb: 242, 120, 159; /* #f2789f */
+}
+
+[data-theme="ocean"] {
+    --accent-color-rgb: 2, 136, 209; /* #0288d1 */
+}
+
+[data-theme="forest"] {
+    --accent-color-rgb: 76, 175, 80; /* #4caf50 */
+}
+
+[data-theme="lavender"] {
+    --accent-color-rgb: 126, 87, 194; /* #7e57c2 */
+}
+
+/* استایل‌های مخصوص موبایل */
+.mobile-header {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--glass-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 15px;
+    z-index: 800;
+    color: var(--text-color);
+    transition: background 0.3s, border 0.3s, color 0.3s;
+}
+
+.mobile-header h1 {
+    font-size: 1.2rem;
+    margin: 0;
+    padding: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.mobile-icon {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.desktop-title {
+    display: block;
+}
+
+.mobile-float-button {
+    display: none;
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 700;
+}
+
+.mobile-float-button .glass-button {
+    border-radius: 30px;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.mobile-float-button .glass-button:active {
+    transform: scale(0.95);
+}
+
+/* Media Queries για μουειλ */
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px;
+    }
+
+    .theme-toggle,
+    .settings-toggle {
+        display: none;
+    }
+
+    .mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mobile-float-button {
+        display: block;
+    }
+    
+    #translate-button {
+        display: none;
+    }
+    
+    .desktop-title {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-header h1 {
+        font-size: 1.1rem;
+    }
+    
+    .mobile-float-button .glass-button {
+        padding: 10px 22px;
+        font-size: 1rem;
     }
 } 

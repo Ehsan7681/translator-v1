@@ -2,12 +2,23 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6c63ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>مترجم هوشمند</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <div class="mobile-header">
+        <h1>مترجم هوشمند</h1>
+        <div class="header-actions">
+            <button id="settings-button" class="icon-button mobile-icon"><i class="fas fa-cog"></i></button>
+            <button id="theme-button" class="icon-button mobile-icon"><i class="fas fa-palette"></i></button>
+        </div>
+    </div>
+
     <div class="theme-toggle">
         <button id="theme-button" class="icon-button"><i class="fas fa-palette"></i></button>
     </div>
@@ -69,10 +80,17 @@
             </div>
             
             <div class="model-selection">
-                <label for="model-select">انتخاب مدل هوش مصنوعی:</label>
-                <select id="model-select" class="glass-select">
-                    <option value="">در حال بارگذاری مدل‌ها...</option>
-                </select>
+                <label for="model-search">انتخاب مدل هوش مصنوعی:</label>
+                <div class="searchable-select">
+                    <div class="select-input">
+                        <input type="text" id="model-search" placeholder="جستجو و انتخاب مدل..." autocomplete="off">
+                        <span class="selected-value"></span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="select-options" id="model-options">
+                        <div class="search-no-result">در حال بارگذاری مدل‌ها...</div>
+                    </div>
+                </div>
             </div>
             
             <div class="tone-selection">
@@ -92,7 +110,7 @@
     
     <div class="container">
         <div class="glass-panel">
-            <h1>مترجم هوشمند</h1>
+            <h1 class="desktop-title">مترجم هوشمند</h1>
             
             <div class="translation-container">
                 <div class="text-area-container">
@@ -194,8 +212,12 @@
         <i class="fas fa-check-circle"></i> متن با موفقیت کپی شد!
     </div>
     
+    <div class="mobile-float-button">
+        <button id="mobile-translate-button" class="glass-button"><i class="fas fa-language"></i> ترجمه</button>
+    </div>
+    
     <footer class="glass-footer">
-        <p>مترجم هوشمند با استفاده از API اوپن‌روتر</p>
+        <p>مترجم هوشمند با استفاده از API اوپن‌روتر | توسعه دهنده: احسان شمسی</p>
     </footer>
     
     <script src="script.js"></script>

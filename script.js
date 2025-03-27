@@ -3,11 +3,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const apiKeyInput = document.getElementById('api-key');
     const saveApiButton = document.getElementById('save-api');
     const showHideApiButton = document.getElementById('show-hide-api');
-    const modelSelect = document.getElementById('model-select');
+    const modelSearch = document.getElementById('model-search');
+    const modelOptions = document.getElementById('model-options');
+    const selectInput = modelSearch.closest('.select-input');
+    const selectedValue = selectInput.querySelector('.selected-value');
     const toneSelect = document.getElementById('tone-select');
     const sourceText = document.getElementById('source-text');
     const translatedText = document.getElementById('translated-text');
     const translateButton = document.getElementById('translate-button');
+    const mobileTranslateButton = document.getElementById('mobile-translate-button');
     const sourceLanguage = document.getElementById('source-language');
     const targetLanguage = document.getElementById('target-language');
     const loadingIndicator = document.getElementById('loading');
@@ -42,12 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmDeleteAll = document.getElementById('confirm-delete-all');
     const cancelDeleteAll = document.getElementById('cancel-delete-all');
     
+    // متغیرهای تشخیص موبایل
+    const isMobile = window.innerWidth <= 768;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
     // شناسه آیتم در حال حذف
     let currentDeleteId = null;
 
     // متغیر برای ذخیره تایمر تاخیر
     let translationTimer = null;
     let toastTimer = null;
+
+    // تنظیم اضافی برای دستگاه‌های لمسی
+    if (isTouchDevice) {
+        document.body.classList.add('touch-device');
+    }
 
     // بارگذاری تنظیمات ذخیره شده
     loadSavedSettings();
@@ -61,10 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // بارگذاری تم
     loadTheme();
 
+    // تنظیم رویدادهای سلکت قابل جستجو
+    setupSearchableSelect();
+
     // رویدادها
     saveApiButton.addEventListener('click', saveApiKey);
     showHideApiButton.addEventListener('click', toggleApiKeyVisibility);
     translateButton.addEventListener('click', () => translateText(true));
+    mobileTranslateButton.addEventListener('click', () => translateText(true));
     clearHistoryButton.addEventListener('click', showDeleteAllConfirmation);
     copyTranslationButton.addEventListener('click', copyTranslation);
     historyHeader.addEventListener('click', toggleHistory);
@@ -72,12 +89,16 @@ document.addEventListener('DOMContentLoaded', () => {
     clearTranslationButton.addEventListener('click', clearTranslatedText);
     
     // رویدادهای مدیریت تم
-    themeButton.addEventListener('click', toggleThemePanel);
+    document.querySelectorAll('#theme-button').forEach(button => {
+        button.addEventListener('click', toggleThemePanel);
+    });
     closePanelButton.addEventListener('click', closeThemePanel);
     opacitySlider.addEventListener('input', updateOpacity);
     
     // رویدادهای مدیریت تنظیمات
-    settingsButton.addEventListener('click', toggleSettingsPanel);
+    document.querySelectorAll('#settings-button').forEach(button => {
+        button.addEventListener('click', toggleSettingsPanel);
+    });
     closeSettingsPanelButton.addEventListener('click', closeSettingsPanel);
     
     themeOptions.forEach(option => {
@@ -93,22 +114,28 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmDeleteAll.addEventListener('click', clearAllHistory);
     cancelDeleteAll.addEventListener('click', hideDeleteAllModal);
     
+    // رویداد تغییر سایز صفحه
+    window.addEventListener('resize', handleResize);
+    
     // بستن پنل تم با کلیک خارج از آن
     document.addEventListener('click', (e) => {
         if (themePanel.classList.contains('show') && 
             !themePanel.contains(e.target) && 
-            e.target !== themeButton &&
-            !themeButton.contains(e.target)) {
+            !e.target.closest('#theme-button')) {
             closeThemePanel();
         }
         
         if (settingsPanel.classList.contains('show') && 
             !settingsPanel.contains(e.target) && 
-            e.target !== settingsButton &&
-            !settingsButton.contains(e.target)) {
+            !e.target.closest('#settings-button')) {
             closeSettingsPanel();
         }
     });
+
+    // تنظیم حالت تمام صفحه برای دستگاه‌های موبایل
+    if (isMobile) {
+        setupMobileFullscreen();
+    }
     
     // تغییرات زبان و لحن فقط در لوکال استوریج ذخیره می‌شوند ولی باعث ترجمه خودکار نمی‌شوند
     sourceLanguage.addEventListener('change', () => {
@@ -122,6 +149,91 @@ document.addEventListener('DOMContentLoaded', () => {
     toneSelect.addEventListener('change', () => {
         localStorage.setItem('selected_tone', toneSelect.value);
     });
+    
+    // تنظیم حالت تمام صفحه برای موبایل
+    function setupMobileFullscreen() {
+        // بررسی پشتیبانی از ویژگی تمام صفحه
+        const fullscreenAvailable = 
+            document.documentElement.requestFullscreen || 
+            document.documentElement.webkitRequestFullscreen || 
+            document.documentElement.mozRequestFullScreen || 
+            document.documentElement.msRequestFullscreen;
+            
+        if (fullscreenAvailable && isMobile) {
+            // اضافه کردن دکمه حالت تمام صفحه به فوتر
+            const footer = document.querySelector('.glass-footer');
+            const fullscreenButton = document.createElement('button');
+            fullscreenButton.className = 'fullscreen-button';
+            fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
+            fullscreenButton.addEventListener('click', toggleFullscreen);
+            footer.appendChild(fullscreenButton);
+        }
+    }
+    
+    // تابع تغییر حالت تمام صفحه
+    function toggleFullscreen() {
+        if (!document.fullscreenElement && 
+            !document.mozFullScreenElement && 
+            !document.webkitFullscreenElement && 
+            !document.msFullscreenElement) {
+            // ورود به حالت تمام صفحه
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            }
+        } else {
+            // خروج از حالت تمام صفحه
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+    }
+    
+    // مدیریت تغییر سایز صفحه
+    function handleResize() {
+        // تنظیم متغیر وضعیت موبایل
+        const wasMobile = isMobile;
+        const newIsMobile = window.innerWidth <= 768;
+        
+        // اگر وضعیت تغییر کرده است
+        if (wasMobile !== newIsMobile) {
+            location.reload(); // بارگذاری مجدد صفحه برای تنظیم عناصر متناسب با سایز
+        }
+        
+        // تنظیم ارتفاع کادرهای متن متناسب با سایز صفحه
+        adjustTextAreaHeights();
+    }
+    
+    // تنظیم ارتفاع کادرهای متن
+    function adjustTextAreaHeights() {
+        const viewportHeight = window.innerHeight;
+        const availableHeight = viewportHeight * 0.25; // 25% ارتفاع صفحه
+        
+        if (window.innerWidth <= 480) {
+            // تنظیم ارتفاع برای موبایل
+            sourceText.style.height = `${availableHeight}px`;
+            translatedText.style.height = `${availableHeight}px`;
+        } else if (window.innerWidth <= 768) {
+            // تنظیم ارتفاع برای تبلت
+            sourceText.style.height = `${availableHeight * 1.2}px`;
+            translatedText.style.height = `${availableHeight * 1.2}px`;
+        } else {
+            // بازگرداندن به حالت پیش‌فرض برای دسکتاپ
+            sourceText.style.height = '';
+            translatedText.style.height = '';
+        }
+    }
     
     // پاک کردن متن اصلی
     function clearSourceText() {
@@ -142,6 +254,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         settingsPanel.classList.toggle('show');
+        
+        // مخفی کردن صفحه کلید در موبایل
+        if (isMobile) {
+            document.activeElement.blur();
+        }
     }
     
     // بستن پنل تنظیمات
@@ -202,8 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedModel = localStorage.getItem('selected_model');
         if (savedModel) {
             setTimeout(() => {
-                if (modelSelect.querySelector(`option[value="${savedModel}"]`)) {
-                    modelSelect.value = savedModel;
+                if (modelOptions.querySelector(`option[value="${savedModel}"]`)) {
+                    modelOptions.value = savedModel;
                 }
             }, 1000); // تاخیر برای اطمینان از بارگذاری مدل‌ها
         }
@@ -343,326 +460,437 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('panel_opacity', opacity);
     }
 
-    // دریافت لیست مدل‌ها از اوپن‌روتر
-    async function fetchModels() {
-        try {
-            const apiKey = localStorage.getItem('openrouter_api_key');
-            if (!apiKey) {
-                modelSelect.innerHTML = '<option value="">ابتدا کلید API را وارد و ذخیره کنید</option>';
-                return;
+    // تنظیم رویدادهای سلکت قابل جستجو
+    function setupSearchableSelect() {
+        // باز و بسته کردن لیست
+        selectInput.addEventListener('click', (e) => {
+            if (e.target !== modelSearch) {
+                if (!modelOptions.classList.contains('show')) {
+                    openSelect();
+                } else {
+                    closeSelect();
+                }
             }
-
-            modelSelect.innerHTML = '<option value="">در حال بارگذاری مدل‌ها...</option>';
-
-            const response = await fetch('https://openrouter.ai/api/v1/models', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
+        });
+        
+        // اگر روی جای دیگری از صفحه کلیک شد، سلکت بسته شود
+        document.addEventListener('click', (e) => {
+            if (!selectInput.contains(e.target) && modelOptions.classList.contains('show')) {
+                closeSelect();
+            }
+        });
+        
+        // جستجو در لیست
+        modelSearch.addEventListener('input', () => {
+            const searchTerm = modelSearch.value.trim().toLowerCase();
+            const options = modelOptions.querySelectorAll('.select-option');
+            let hasResults = false;
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    option.style.display = 'block';
+                    hasResults = true;
+                } else {
+                    option.style.display = 'none';
                 }
             });
-
-            if (!response.ok) {
-                throw new Error(`خطا در دریافت مدل‌ها: ${response.status}`);
+            
+            // نمایش پیام "نتیجه‌ای یافت نشد" اگر هیچ نتیجه‌ای نبود
+            const noResultElem = modelOptions.querySelector('.search-no-result');
+            if (noResultElem) {
+                if (hasResults) {
+                    noResultElem.style.display = 'none';
+                } else {
+                    noResultElem.textContent = 'نتیجه‌ای یافت نشد';
+                    noResultElem.style.display = 'block';
+                }
             }
-
-            const data = await response.json();
-            populateModelSelect(data.data);
-        } catch (error) {
-            console.error('خطا در دریافت مدل‌ها:', error);
-            modelSelect.innerHTML = '<option value="">خطا در بارگذاری مدل‌ها</option>';
+        });
+        
+        // فوکوس روی فیلد جستجو وقتی سلکت باز می‌شود
+        modelSearch.addEventListener('focus', () => {
+            openSelect();
+        });
+        
+        // باز کردن سلکت
+        function openSelect() {
+            selectInput.classList.add('active');
+            modelOptions.classList.add('show');
+            modelSearch.focus();
+            
+            // اگر مقداری انتخاب شده، آن را پاک کنیم تا کاربر بتواند جستجو کند
+            if (selectInput.classList.contains('has-value')) {
+                modelSearch.value = '';
+                selectInput.classList.remove('has-value');
+            }
+        }
+        
+        // بستن سلکت
+        function closeSelect() {
+            selectInput.classList.remove('active');
+            modelOptions.classList.remove('show');
+            
+            // اگر مقداری انتخاب شده است، آن را نمایش دهیم
+            const selectedOption = modelOptions.querySelector('.select-option.selected');
+            if (selectedOption) {
+                selectedValue.textContent = selectedOption.textContent;
+                selectInput.classList.add('has-value');
+            }
         }
     }
 
-    // پر کردن لیست مدل‌ها
-    function populateModelSelect(models) {
-        if (!models || models.length === 0) {
-            modelSelect.innerHTML = '<option value="">هیچ مدلی یافت نشد</option>';
+    // بارگذاری مدل‌ها از API
+    async function fetchModels() {
+        const apiKey = localStorage.getItem('openrouter_api_key');
+        
+        // ابتدا لیست را خالی کنیم
+        modelOptions.innerHTML = '<div class="search-no-result">در حال بارگذاری مدل‌ها...</div>';
+        
+        if (!apiKey) {
+            modelOptions.innerHTML = '<div class="search-no-result">لطفا ابتدا کلید API را وارد کنید</div>';
             return;
         }
-
-        modelSelect.innerHTML = '';
-        models.forEach(model => {
-            const option = document.createElement('option');
-            option.value = model.id;
-            option.textContent = `${model.name} (${model.context_length} توکن)`;
-            modelSelect.appendChild(option);
-        });
-
-        // بازیابی مدل ذخیره شده
-        const savedModel = localStorage.getItem('selected_model');
-        if (savedModel && modelSelect.querySelector(`option[value="${savedModel}"]`)) {
-            modelSelect.value = savedModel;
+        
+        try {
+            const response = await fetch('https://openrouter.ai/api/v1/models', {
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`خطا در دریافت لیست مدل‌ها: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // خالی کردن لیست قبلی
+            modelOptions.innerHTML = '';
+            
+            // اگر هیچ مدلی وجود نداشت
+            if (!data.data || data.data.length === 0) {
+                modelOptions.innerHTML = '<div class="search-no-result">هیچ مدلی یافت نشد</div>';
+                return;
+            }
+            
+            // مرتب‌سازی مدل‌ها بر اساس نام
+            const models = data.data.sort((a, b) => a.id.localeCompare(b.id));
+            
+            // اضافه کردن مدل‌ها به لیست
+            models.forEach(model => {
+                const option = document.createElement('div');
+                option.className = 'select-option';
+                option.setAttribute('data-value', model.id);
+                option.textContent = model.id;
+                
+                // اگر این مدل قبلاً انتخاب شده بود
+                const savedModel = localStorage.getItem('selected_model');
+                if (savedModel && savedModel === model.id) {
+                    option.classList.add('selected');
+                    selectedValue.textContent = model.id;
+                    selectInput.classList.add('has-value');
+                }
+                
+                option.addEventListener('click', () => {
+                    // انتخاب این گزینه
+                    const allOptions = modelOptions.querySelectorAll('.select-option');
+                    allOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    
+                    // نمایش مقدار انتخاب شده
+                    selectedValue.textContent = model.id;
+                    selectInput.classList.add('has-value');
+                    
+                    // ذخیره مدل انتخاب شده
+                    localStorage.setItem('selected_model', model.id);
+                    
+                    // بستن لیست
+                    closeSelect();
+                });
+                
+                modelOptions.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error('خطا در دریافت لیست مدل‌ها:', error);
+            modelOptions.innerHTML = '<div class="search-no-result">خطا در دریافت لیست مدل‌ها</div>';
         }
-
-        // ذخیره انتخاب مدل
-        modelSelect.addEventListener('change', () => {
-            localStorage.setItem('selected_model', modelSelect.value);
-        });
     }
 
     // ترجمه متن
     async function translateText(showAlert = true) {
+        const apiKey = localStorage.getItem('openrouter_api_key');
         const text = sourceText.value.trim();
-        const model = modelSelect.value;
         const tone = toneSelect.value;
         const srcLang = sourceLanguage.value;
         const tgtLang = targetLanguage.value;
-        const apiKey = localStorage.getItem('openrouter_api_key');
-
+        
         if (!text) {
             if (showAlert) alert('لطفاً متنی برای ترجمه وارد کنید.');
             return;
         }
-
+        
+        if (!apiKey) {
+            if (showAlert) alert('لطفاً ابتدا کلید API را وارد کنید.');
+            return;
+        }
+        
+        // گزینه انتخاب شده در لیست مدل‌ها
+        const selectedOption = modelOptions.querySelector('.select-option.selected');
+        const model = selectedOption ? selectedOption.getAttribute('data-value') : null;
+        
         if (!model) {
             if (showAlert) alert('لطفاً یک مدل انتخاب کنید.');
             return;
         }
-
-        if (!apiKey) {
-            if (showAlert) alert('لطفاً کلید API را وارد و ذخیره کنید.');
-            return;
-        }
-
+        
         // نمایش نشانگر بارگذاری
         loadingIndicator.style.display = 'flex';
-        translatedText.value = 'در حال ترجمه...';
-
+        
         try {
+            // لحن‌های مختلف ترجمه
             const tonePrompts = {
-                'normal': 'با لحن عادی ترجمه کن.',
-                'formal': 'با لحن رسمی و مؤدبانه ترجمه کن.',
-                'informal': 'با لحن غیررسمی و صمیمی ترجمه کن.',
-                'scientific': 'با لحن علمی و تخصصی ترجمه کن.',
-                'professional': 'با لحن حرفه‌ای و تجاری ترجمه کن.',
-                'childish': 'با لحن کودکانه و ساده ترجمه کن.',
-                'serious': 'با لحن جدی و قاطع ترجمه کن.'
+                normal: 'ترجمه کن',
+                formal: 'به صورت رسمی و مؤدبانه ترجمه کن',
+                informal: 'به صورت غیررسمی و محاوره‌ای ترجمه کن',
+                scientific: 'به صورت علمی و تخصصی ترجمه کن',
+                professional: 'به صورت حرفه‌ای و تجاری ترجمه کن',
+                childish: 'به زبان ساده و قابل فهم برای کودکان ترجمه کن',
+                serious: 'به صورت جدی و رسمی ترجمه کن'
             };
 
             const tonePrompt = tonePrompts[tone] || tonePrompts['normal'];
             
             const sourceLangName = sourceLanguage.options[sourceLanguage.selectedIndex].text;
             const targetLangName = targetLanguage.options[targetLanguage.selectedIndex].text;
-
-            const prompt = `متن زیر را از ${sourceLangName} به ${targetLangName} ترجمه کن. ${tonePrompt}
-
-متن اصلی:
-${text}
-
-ترجمه:`;
-
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'HTTP-Referer': window.location.href,
-                    'X-Title': 'AI Translator'
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        { role: 'user', content: prompt }
-                    ]
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`خطا در ترجمه: ${response.status}`);
-            }
-
-            const data = await response.json();
-            const translatedContent = data.choices[0].message.content.trim();
-            translatedText.value = translatedContent;
             
-            // افزودن ترجمه به تاریخچه
-            addToHistory(text, translatedContent, sourceLangName, targetLangName, model, tone);
-            
-        } catch (error) {
-            console.error('خطا در ترجمه متن:', error);
-            translatedText.value = `خطا در ترجمه: ${error.message}`;
-        } finally {
-            // مخفی کردن نشانگر بارگذاری
-            loadingIndicator.style.display = 'none';
-        }
-    }
-    
-    // ------------- توابع مربوط به تاریخچه -------------
-    
-    // افزودن ترجمه به تاریخچه
-    function addToHistory(sourceText, translatedText, sourceLang, targetLang, model, tone) {
-        // دریافت تاریخچه فعلی
-        let history = JSON.parse(localStorage.getItem('translation_history') || '[]');
-        
-        // شناسه یکتا برای ترجمه جدید
-        const id = Date.now().toString();
-        
-        // افزودن ترجمه جدید به ابتدای تاریخچه
-        history.unshift({
-            id,
-            sourceText,
-            translatedText,
-            sourceLang,
-            targetLang,
-            model: modelSelect.options[modelSelect.selectedIndex].text,
-            tone: toneSelect.options[toneSelect.selectedIndex].text,
-            date: new Date().toISOString()
-        });
-        
-        // محدود کردن تعداد آیتم‌های تاریخچه به 20
-        if (history.length > 20) {
-            history = history.slice(0, 20);
-        }
-        
-        // ذخیره تاریخچه
-        localStorage.setItem('translation_history', JSON.stringify(history));
-        
-        // نمایش تاریخچه به‌روزشده
-        loadHistory();
-    }
-    
-    // بارگذاری و نمایش تاریخچه
-    function loadHistory() {
-        const history = JSON.parse(localStorage.getItem('translation_history') || '[]');
-        
-        if (history.length === 0) {
-            translationHistory.innerHTML = '<p class="no-history">تاریخچه‌ای وجود ندارد</p>';
-            return;
-        }
-        
-        translationHistory.innerHTML = '';
-        
-        history.forEach(item => {
-            const date = new Date(item.date);
-            const formattedDate = `${date.toLocaleDateString('fa-IR')} - ${date.toLocaleTimeString('fa-IR')}`;
-            
-            const historyItem = document.createElement('div');
-            historyItem.className = 'history-item';
-            historyItem.dataset.id = item.id;
-            
-            historyItem.innerHTML = `
-                <div class="history-item-header">
-                    <span>${formattedDate}</span>
-                    <div class="history-actions">
-                        <button class="use" title="استفاده مجدد"><i class="fas fa-sync-alt"></i></button>
-                        <button class="delete" title="حذف"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-                <div class="history-info">
-                    <small>از ${item.sourceLang} به ${item.targetLang} | مدل: ${item.model} | لحن: ${item.tone}</small>
-                </div>
-                <div class="history-text">
-                    <div class="history-text-column">
-                        <div class="history-text-title">متن اصلی:</div>
-                        <div class="history-text-content">${escapeHTML(item.sourceText)}</div>
-                    </div>
-                    <div class="history-text-column">
-                        <div class="history-text-title">ترجمه:</div>
-                        <div class="history-text-content">${escapeHTML(item.translatedText)}</div>
-                    </div>
-                </div>
-            `;
-            
-            translationHistory.appendChild(historyItem);
-            
-            // افزودن رویدادها به دکمه‌ها
-            const useButton = historyItem.querySelector('.use');
-            const deleteButton = historyItem.querySelector('.delete');
-            
-            useButton.addEventListener('click', () => {
-                useHistoryItem(item);
-            });
-            
-            deleteButton.addEventListener('click', () => {
-                showDeleteConfirmation(item.id);
-            });
-        });
-    }
-    
-    // استفاده مجدد از یک آیتم تاریخچه
-    function useHistoryItem(item) {
-        sourceText.value = item.sourceText;
-        translatedText.value = item.translatedText;
-        
-        // یافتن و انتخاب زبان‌ها
-        for (let i = 0; i < sourceLanguage.options.length; i++) {
-            if (sourceLanguage.options[i].text === item.sourceLang) {
-                sourceLanguage.selectedIndex = i;
-                break;
-            }
-        }
-        
-        for (let i = 0; i < targetLanguage.options.length; i++) {
-            if (targetLanguage.options[i].text === item.targetLang) {
-                targetLanguage.selectedIndex = i;
-                break;
-            }
-        }
-        
-        // یافتن و انتخاب لحن
-        for (let i = 0; i < toneSelect.options.length; i++) {
-            if (toneSelect.options[i].text === item.tone) {
-                toneSelect.selectedIndex = i;
-                break;
-            }
-        }
-        
-        // اسکرول به بالای صفحه
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }
-    
-    // نمایش تایید حذف یک آیتم
-    function showDeleteConfirmation(id) {
-        currentDeleteId = id;
-        deleteModal.style.display = 'flex';
-    }
-    
-    // نمایش تایید حذف همه آیتم‌ها
-    function showDeleteAllConfirmation() {
-        deleteAllModal.style.display = 'flex';
-    }
-    
-    // مخفی کردن مدال حذف
-    function hideDeleteModal() {
-        deleteModal.style.display = 'none';
-        currentDeleteId = null;
-    }
-    
-    // مخفی کردن مدال حذف همه
-    function hideDeleteAllModal() {
-        deleteAllModal.style.display = 'none';
-    }
-    
-    // حذف یک آیتم از تاریخچه
-    function deleteHistoryItem() {
-        if (!currentDeleteId) return;
-        
-        let history = JSON.parse(localStorage.getItem('translation_history') || '[]');
-        history = history.filter(item => item.id !== currentDeleteId);
-        localStorage.setItem('translation_history', JSON.stringify(history));
-        
-        loadHistory();
-        hideDeleteModal();
-    }
-    
-    // حذف تمام تاریخچه
-    function clearAllHistory() {
-        localStorage.removeItem('translation_history');
-        loadHistory();
-        hideDeleteAllModal();
-    }
-    
-    // ایمن‌سازی متن HTML
-    function escapeHTML(text) {
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
+            // ساخت پیام برای API
+            const userMessage = `${srcLang === 'auto' ? 'این متن را به ' + targetLangName + ' ' + tonePrompt : 
+                'این متن ' + sourceLangName + ' را به ' + targetLangName + ' ' + tonePrompt}:
+                
+${text}`;
+             
+             const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                 method: 'POST',
+                 headers: {
+                     'Authorization': `Bearer ${apiKey}`,
+                     'Content-Type': 'application/json',
+                     'HTTP-Referer': window.location.href,
+                     'X-Title': 'مترجم هوشمند'
+                 },
+                 body: JSON.stringify({
+                     model: model,
+                     messages: [
+                         { role: 'user', content: userMessage }
+                     ]
+                 })
+             });
+             
+             if (!response.ok) {
+                 throw new Error(`خطا در ترجمه: ${response.status}`);
+             }
+             
+             const data = await response.json();
+             const translatedContent = data.choices[0].message.content.trim();
+             
+             translatedText.value = translatedContent;
+             
+             // افزودن ترجمه به تاریخچه
+             addToHistory(text, translatedContent, sourceLangName, targetLangName, model, tone);
+             
+         } catch (error) {
+             console.error('خطا در ترجمه:', error);
+             if (showAlert) alert(`خطا در ترجمه: ${error.message}`);
+         } finally {
+             // مخفی کردن نشانگر بارگذاری
+             loadingIndicator.style.display = 'none';
+         }
+     }
+     
+     // افزودن به تاریخچه
+     function addToHistory(sourceText, translatedText, sourceLang, targetLang, model, tone) {
+         // بررسی اینکه آیا قبلاً تاریخچه‌ای ذخیره شده است
+         let history = JSON.parse(localStorage.getItem('translation_history')) || [];
+         
+         // ایجاد یک شناسه منحصر به فرد
+         const id = Date.now().toString();
+         
+         // افزودن ترجمه جدید به ابتدای آرایه
+         history.unshift({
+             id,
+             sourceText,
+             translatedText,
+             sourceLang,
+             targetLang,
+             model: selectedValue.textContent,
+             tone: toneSelect.options[toneSelect.selectedIndex].text,
+             date: new Date().toISOString()
+         });
+         
+         // محدود کردن تعداد موارد تاریخچه به 50 مورد
+         if (history.length > 50) {
+             history = history.slice(0, 50);
+         }
+         
+         // ذخیره تاریخچه
+         localStorage.setItem('translation_history', JSON.stringify(history));
+         
+         // بروزرسانی نمایش تاریخچه
+         loadHistory();
+     }
+     
+     // بارگذاری و نمایش تاریخچه
+     function loadHistory() {
+         const history = JSON.parse(localStorage.getItem('translation_history') || '[]');
+         
+         if (history.length === 0) {
+             translationHistory.innerHTML = '<p class="no-history">تاریخچه‌ای وجود ندارد</p>';
+             return;
+         }
+         
+         translationHistory.innerHTML = '';
+         
+         history.forEach(item => {
+             const date = new Date(item.date);
+             const formattedDate = `${date.toLocaleDateString('fa-IR')} - ${date.toLocaleTimeString('fa-IR')}`;
+             
+             const historyItem = document.createElement('div');
+             historyItem.className = 'history-item';
+             historyItem.dataset.id = item.id;
+             
+             historyItem.innerHTML = `
+                 <div class="history-item-header">
+                     <span>${formattedDate}</span>
+                     <div class="history-actions">
+                         <button class="use" title="استفاده مجدد"><i class="fas fa-sync-alt"></i></button>
+                         <button class="delete" title="حذف"><i class="fas fa-trash"></i></button>
+                     </div>
+                 </div>
+                 <div class="history-info">
+                     <small>از ${item.sourceLang} به ${item.targetLang} | مدل: ${item.model} | لحن: ${item.tone}</small>
+                 </div>
+                 <div class="history-text">
+                     <div class="history-text-column">
+                         <div class="history-text-title">متن اصلی:</div>
+                         <div class="history-text-content">${escapeHTML(item.sourceText)}</div>
+                     </div>
+                     <div class="history-text-column">
+                         <div class="history-text-title">ترجمه:</div>
+                         <div class="history-text-content">${escapeHTML(item.translatedText)}</div>
+                     </div>
+                 </div>
+             `;
+             
+             translationHistory.appendChild(historyItem);
+             
+             // افزودن رویدادها به دکمه‌ها
+             const useButton = historyItem.querySelector('.use');
+             const deleteButton = historyItem.querySelector('.delete');
+             
+             useButton.addEventListener('click', () => {
+                 useHistoryItem(item);
+             });
+             
+             deleteButton.addEventListener('click', () => {
+                 showDeleteConfirmation(item.id);
+             });
+         });
+         
+         // در حالت موبایل، اسکرول اتوماتیک به بالای لیست تاریخچه
+         if (isMobile && history.length > 0) {
+             translationHistory.scrollTo(0, 0);
+         }
+     }
+     
+     // استفاده مجدد از یک آیتم تاریخچه
+     function useHistoryItem(item) {
+         sourceText.value = item.sourceText;
+         translatedText.value = item.translatedText;
+         
+         // یافتن و انتخاب زبان‌ها
+         for (let i = 0; i < sourceLanguage.options.length; i++) {
+             if (sourceLanguage.options[i].text === item.sourceLang) {
+                 sourceLanguage.selectedIndex = i;
+                 break;
+             }
+         }
+         
+         for (let i = 0; i < targetLanguage.options.length; i++) {
+             if (targetLanguage.options[i].text === item.targetLang) {
+                 targetLanguage.selectedIndex = i;
+                 break;
+             }
+         }
+         
+         // یافتن و انتخاب لحن
+         for (let i = 0; i < toneSelect.options.length; i++) {
+             if (toneSelect.options[i].text === item.tone) {
+                 toneSelect.selectedIndex = i;
+                 break;
+             }
+         }
+         
+         // اسکرول به بالای صفحه
+         window.scrollTo({
+             top: 0,
+             behavior: 'smooth'
+         });
+         
+         // در حالت موبایل، بستن پنل تاریخچه
+         if (isMobile && historyContent.classList.contains('show')) {
+             toggleHistory();
+         }
+     }
+     
+     // نمایش تایید حذف یک آیتم
+     function showDeleteConfirmation(id) {
+         currentDeleteId = id;
+         deleteModal.style.display = 'flex';
+     }
+     
+     // نمایش تایید حذف همه آیتم‌ها
+     function showDeleteAllConfirmation() {
+         deleteAllModal.style.display = 'flex';
+     }
+     
+     // مخفی کردن مدال حذف
+     function hideDeleteModal() {
+         deleteModal.style.display = 'none';
+         currentDeleteId = null;
+     }
+     
+     // مخفی کردن مدال حذف همه
+     function hideDeleteAllModal() {
+         deleteAllModal.style.display = 'none';
+     }
+     
+     // حذف یک آیتم از تاریخچه
+     function deleteHistoryItem() {
+         if (!currentDeleteId) return;
+         
+         let history = JSON.parse(localStorage.getItem('translation_history') || '[]');
+         history = history.filter(item => item.id !== currentDeleteId);
+         localStorage.setItem('translation_history', JSON.stringify(history));
+         
+         loadHistory();
+         hideDeleteModal();
+     }
+     
+     // حذف تمام تاریخچه
+     function clearAllHistory() {
+         localStorage.removeItem('translation_history');
+         loadHistory();
+         hideDeleteAllModal();
+     }
+     
+     // ایمن‌سازی متن HTML
+     function escapeHTML(text) {
+         return text
+             .replace(/&/g, '&amp;')
+             .replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;')
+             .replace(/"/g, '&quot;')
+             .replace(/'/g, '&#039;');
+     }
 }); 
