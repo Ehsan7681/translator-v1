@@ -233,7 +233,9 @@
         // ثبت سرویس ورکر
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
+                navigator.serviceWorker.register('./service-worker.js', {
+                    scope: './'
+                })
                     .then(registration => {
                         console.log('Service Worker ثبت شد:', registration);
                     })
@@ -242,6 +244,25 @@
                     });
             });
         }
+        
+        // ایجاد پوشه‌های مورد نیاز برای آیکون‌ها
+        function createRequiredFolders() {
+            if ('showDirectoryPicker' in window) {
+                try {
+                    // بررسی وجود پوشه‌های مورد نیاز
+                    fetch('./icons/icon-192x192.png')
+                        .catch(() => {
+                            console.warn('پوشه icons یافت نشد. لطفاً آن را ایجاد کنید.');
+                            alert('برای نصب برنامه، لطفاً پوشه icons را ایجاد کرده و آیکون‌های مورد نیاز را در آن قرار دهید.');
+                        });
+                } catch (e) {
+                    console.error('خطا در بررسی پوشه‌ها:', e);
+                }
+            }
+        }
+        
+        // فراخوانی تابع بررسی پوشه‌ها
+        createRequiredFolders();
         
         // نمایش دکمه نصب برنامه
         let deferredPrompt;
@@ -277,6 +298,7 @@
         
         window.addEventListener('appinstalled', (evt) => {
             console.log('برنامه نصب شد');
+            installButton.style.display = 'none';
         });
     </script>
 </body>

@@ -2,7 +2,7 @@
     "name": "مترجم هوشمند",
     "short_name": "مترجم",
     "description": "مترجم هوشمند با استفاده از هوش مصنوعی",
-    "start_url": "/index.html",
+    "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#6c63ff",

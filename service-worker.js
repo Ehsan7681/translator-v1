@@ -1,10 +1,10 @@
 const CACHE_NAME = 'smart-translator-v1';
 const URLS_TO_CACHE = [
-    '/',
-    '/index.html',
-    '/style.css',
-    '/script.js',
-    '/manifest.json',
+    './',
+    './index.html',
+    './style.css',
+    './script.js',
+    './manifest.json',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2'
 ];
@@ -35,7 +35,7 @@ self.addEventListener('activate', event => {
     );
 });
 
-// استراتژی مدیریت درخواست‌ها: ابتدا آنلاین، سپس کش
+// استراتژی مدیریت درخواست‌ها: ابتدا کش، سپس آنلاین
 self.addEventListener('fetch', event => {
     // برای درخواست‌های API، همیشه به صورت آنلاین
     if (event.request.url.includes('openrouter.ai')) {
@@ -43,21 +43,35 @@ self.addEventListener('fetch', event => {
     }
     
     event.respondWith(
-        fetch(event.request)
+        caches.match(event.request)
             .then(response => {
-                // کپی پاسخ برای ذخیره در کش
-                let responseClone = response.clone();
+                // اگر در کش یافت شد، آن را برگردان
+                if (response) {
+                    return response;
+                }
                 
-                caches.open(CACHE_NAME)
-                    .then(cache => {
-                        cache.put(event.request, responseClone);
+                // در غیر این صورت، درخواست را به سرور ارسال کن
+                return fetch(event.request)
+                    .then(response => {
+                        // بررسی اعتبار پاسخ
+                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                            return response;
+                        }
+                        
+                        // کپی پاسخ برای ذخیره در کش
+                        let responseClone = response.clone();
+                        
+                        caches.open(CACHE_NAME)
+                            .then(cache => {
+                                cache.put(event.request, responseClone);
+                            });
+                            
+                        return response;
                     });
-                    
-                return response;
             })
             .catch(() => {
-                // اگر درخواست آنلاین با خطا مواجه شد، از کش استفاده کن
-                return caches.match(event.request);
+                // اگر هیچ راهی برای دریافت منبع نبود، اینجا می‌توان یک صفحه آفلاین خاص را برگرداند
+                // در این مورد فعلاً چیزی برنمی‌گردانیم
             })
     );
 });
