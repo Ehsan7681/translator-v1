@@ -909,4 +909,38 @@ ${text}`;
              .replace(/"/g, '&quot;')
              .replace(/'/g, '&#039;');
      }
+
+    // بررسی وضعیت اتصال به اینترنت
+    function checkOnlineStatus() {
+        const offlineMessage = document.createElement('div');
+        offlineMessage.className = 'offline-message';
+        offlineMessage.textContent = 'شما آفلاین هستید. برخی از ویژگی‌ها در دسترس نیستند.';
+        document.body.appendChild(offlineMessage);
+        
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineMessage.classList.remove('show');
+                document.body.classList.remove('offline');
+                // فعال‌سازی مجدد دکمه‌ها
+                translateButton.disabled = false;
+                if (mobileTranslateButton) mobileTranslateButton.disabled = false;
+            } else {
+                offlineMessage.classList.add('show');
+                document.body.classList.add('offline');
+                // غیرفعال کردن دکمه‌ها
+                translateButton.disabled = true;
+                if (mobileTranslateButton) mobileTranslateButton.disabled = true;
+            }
+        }
+        
+        // بررسی وضعیت اولیه
+        updateOnlineStatus();
+        
+        // اضافه کردن لیسنرها برای تغییر وضعیت
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+    }
+    
+    // فراخوانی تابع بررسی وضعیت اتصال
+    checkOnlineStatus();
 }); 

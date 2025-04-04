@@ -1373,4 +1373,60 @@ label {
         padding: 10px 22px;
         font-size: 1rem;
     }
+}
+
+/* دکمه نصب PWA */
+.pwa-install-button {
+    position: fixed;
+    bottom: 60px;
+    right: 20px;
+    z-index: 100;
+    background: var(--accent-color);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 8px 15px;
+    font-family: inherit;
+    font-size: 14px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.pwa-install-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.pwa-install-button i {
+    font-size: 16px;
+}
+
+/* استایل‌های حالت آفلاین */
+.offline-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 152, 0, 0.9);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    z-index: 1000;
+    font-weight: bold;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+}
+
+.offline-message.show {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .pwa-install-button {
+        bottom: 80px;
+    }
 } 

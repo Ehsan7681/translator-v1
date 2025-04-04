@@ -6,9 +6,16 @@
     <meta name="theme-color" content="#6c63ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="مترجم هوشمند با استفاده از هوش مصنوعی و API اوپن‌روتر">
     <title>مترجم هوشمند</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- آیکون‌های PWA -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <meta name="msapplication-TileColor" content="#6c63ff">
+    <meta name="msapplication-TileImage" content="icons/mstile-144x144.png">
 </head>
 <body>
     <div class="mobile-header">
@@ -222,5 +229,55 @@
     </footer>
     
     <script src="script.js"></script>
+    <script>
+        // ثبت سرویس ورکر
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker ثبت شد:', registration);
+                    })
+                    .catch(error => {
+                        console.log('خطا در ثبت Service Worker:', error);
+                    });
+            });
+        }
+        
+        // نمایش دکمه نصب برنامه
+        let deferredPrompt;
+        const installButton = document.createElement('button');
+        installButton.classList.add('pwa-install-button');
+        installButton.style.display = 'none';
+        installButton.innerHTML = '<i class="fas fa-download"></i> نصب برنامه';
+        document.querySelector('footer').appendChild(installButton);
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // رویداد نصب را ذخیره می‌کنیم
+            e.preventDefault();
+            deferredPrompt = e;
+            // نمایش دکمه نصب
+            installButton.style.display = 'block';
+        });
+        
+        installButton.addEventListener('click', (e) => {
+            // مخفی کردن دکمه نصب
+            installButton.style.display = 'none';
+            // نمایش پنجره نصب
+            deferredPrompt.prompt();
+            // بررسی انتخاب کاربر
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('کاربر با نصب برنامه موافقت کرد');
+                } else {
+                    console.log('کاربر از نصب برنامه صرف نظر کرد');
+                }
+                deferredPrompt = null;
+            });
+        });
+        
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('برنامه نصب شد');
+        });
+    </script>
 </body>
 </html> 

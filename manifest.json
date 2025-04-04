@@ -1,0 +1,40 @@
+{
+    "name": "مترجم هوشمند",
+    "short_name": "مترجم",
+    "description": "مترجم هوشمند با استفاده از هوش مصنوعی",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#6c63ff",
+    "icons": [
+        {
+            "src": "icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "orientation": "any",
+    "categories": ["utilities", "productivity"],
+    "lang": "fa-IR",
+    "dir": "rtl",
+    "prefer_related_applications": false,
+    "screenshots": [
+        {
+            "src": "screenshots/desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png"
+        },
+        {
+            "src": "screenshots/mobile.png",
+            "sizes": "720x1280",
+            "type": "image/png"
+        }
+    ]
+} 
